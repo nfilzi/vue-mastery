@@ -1,41 +1,79 @@
 Vue.config.devtools = true
 
-const app = new Vue({
-  el:  '#app',
-  data: {
-    product: 'Socks',
-    productLabel: 'socks',
-    description: 'Amazing beautiful socks',
-    image: './images/green.jpg',
-    stock: 12,
-    details: ["80% coton", "20% polyester", "Gender-neutral "],
-    variants: [
-      {
-        id: 2234,
-        color: 'green',
-        image: './images/green.jpg',
-        style: {
-          backgroundColor: '#379C69',
-          color: '#FFFFFF',
-          display: 'inline-block',
-          padding: '10px',
-          marginRight: '2px'
+
+
+Vue.component('product', {
+  template: `
+    <div class="product">
+      <div class="product-image">
+        <img v-bind:src="image" alt="">
+      </div>
+
+      <div class="product-info">
+        <h1>{{ product }}</h1>
+
+        <p :class="{ outOfStock: stockEmpty }">{{ stockStatusText }}</p>
+        <p>{{ capitalizedProductUnitLabel }} {{ productLabel }} left: {{ stock }}</p>
+
+        <ul>
+          <li v-for="detail in details"> {{ detail }} </li>
+        </ul>
+
+        <div class="flex-container">
+          <div
+            class="color-box"
+            :data-variant-id="variant.id"
+            v-for="variant in variants"
+            @mouseover="displayVariantImage(variant.image)" :style="variant.style">
+          </div>
+        </div>
+
+        <div class="mt30 flex-container flex-start flex-align-center">
+          <button @click="addToCart" :disabled="stockEmpty" :class="{ disabledButton: stockEmpty }">+</button>
+          <div class="cart">
+            Cart {{cart}}
+          </div>
+          <button @click="removeFromCart" :disabled="cartEmpty" :class="{ disabledButton: cartEmpty }">-</button>
+        </div>
+      </div>
+    </div>
+  `,
+  data() {
+    return {
+      product: 'Socks',
+      productLabel: 'socks',
+      description: 'Amazing beautiful socks',
+      image: './images/green.jpg',
+      stock: 12,
+      details: ["80% coton", "20% polyester", "Gender-neutral "],
+      variants: [
+        {
+          id: 2234,
+          color: 'green',
+          image: './images/green.jpg',
+          style: {
+            backgroundColor: '#379C69',
+            color: '#FFFFFF',
+            display: 'inline-block',
+            padding: '10px',
+            marginRight: '2px'
+          }
+        },
+        {
+          id: 2235,
+          color: 'blue',
+          image: './images/blue.jpg',
+          style: {
+            backgroundColor: '#435972',
+            color: '#FFFFFF',
+            display: 'inline-block',
+            padding: '10px',
+            marginRight: '2px'
+          }
         }
-      },
-      {
-        id: 2235,
-        color: 'blue',
-        image: './images/blue.jpg',
-        style: {
-          backgroundColor: '#435972',
-          color: '#FFFFFF',
-          display: 'inline-block',
-          padding: '10px',
-          marginRight: '2px'
-        }
-      }
-    ],
-    cart: 0,
+      ],
+      cart: 0,
+    }
   },
 
   computed: {
@@ -54,26 +92,34 @@ const app = new Vue({
     inStock() {
       return this.stock >= 3
     },
-    almostGone() {
+    stockAlmostEmpty() {
       return this.stock > 0 && this.stock < 3
     },
     oneLeftInStock() {
       return this.stock == 1
     },
-    gone() {
+    stockEmpty() {
       return this.stock == 0
+    },
+    stockFull() {
+      return this.stock == 12
+    },
+
+    cartEmpty() {
+      return this.cart == 0
     },
 
     stockStatusText() {
       if (this.inStock) {
         return 'In Stock'
-      } else if (this.almostGone) {
+      } else if (this.stockAlmostEmpty) {
         return 'Almost gone!'
-      } else if (this.gone) {
+      } else if (this.stockEmpty) {
         return 'Not available anymore'
       }
     }
   },
+
   methods: {
     addToCart() {
       if (this.stock == 0) {
@@ -105,4 +151,8 @@ const app = new Vue({
       alert('No more socks in stock!')
     }
   }
+})
+
+const app = new Vue({
+  el:  '#app'
 })
