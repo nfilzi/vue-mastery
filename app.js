@@ -1,8 +1,26 @@
 Vue.config.devtools = true
 
-
+Vue.component('product-details', {
+  props: {
+    details: {
+      type: Array,
+      required: true
+    }
+  },
+  template: `
+    <ul>
+      <li v-for="detail in details"> {{ detail }} </li>
+    </ul>
+  `
+})
 
 Vue.component('product', {
+  props: {
+    premium: {
+      type: Boolean,
+      required: true
+    }
+  },
   template: `
     <div class="product">
       <div class="product-image">
@@ -15,9 +33,9 @@ Vue.component('product', {
         <p :class="{ outOfStock: stockEmpty }">{{ stockStatusText }}</p>
         <p>{{ capitalizedProductUnitLabel }} {{ productLabel }} left: {{ stock }}</p>
 
-        <ul>
-          <li v-for="detail in details"> {{ detail }} </li>
-        </ul>
+        <p>Shipping: {{ shipping }}</p>
+
+        <product-details :details="details"></product-details>
 
         <div class="flex-container">
           <div
@@ -77,6 +95,13 @@ Vue.component('product', {
   },
 
   computed: {
+    shipping() {
+      if (this.premium) {
+        return 'Free'
+      } else {
+        return '2.99$'
+      }
+    },
     productUnitLabel() {
       if (this.oneLeftInStock) {
         return 'pair of'
@@ -154,5 +179,8 @@ Vue.component('product', {
 })
 
 const app = new Vue({
-  el:  '#app'
+  el:  '#app',
+  data: {
+    premium: true
+  }
 })
